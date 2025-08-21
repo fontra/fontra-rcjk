@@ -10,7 +10,7 @@
     "projectmanager": "rcjk"
   },
   "dependencies": {
-    "@fontra/core": "https://gitpkg.vercel.app/googlefonts/fontra/src-js/fontra-core?ef50a167f881961419f8bfa6e9da184f08486e85",
-    "@fontra/projectmanager-filesystem": "https://gitpkg.vercel.app/googlefonts/fontra/src-js/projectmanager-filesystem?ef50a167f881961419f8bfa6e9da184f08486e85"
+    "@fontra/core": "https://gitpkg.vercel.app/fontra/fontra/src-js/fontra-core?ef50a167f881961419f8bfa6e9da184f08486e85",
+    "@fontra/projectmanager-filesystem": "https://gitpkg.vercel.app/fontra/fontra/src-js/projectmanager-filesystem?ef50a167f881961419f8bfa6e9da184f08486e85"
   }
 }

@@ -895,7 +895,7 @@ async def test_bad_layer_name(writableTestFont):
 
 
 async def test_bad_layer_name_issue242(writableTestFont):
-    # https://github.com/googlefonts/fontra-rcjk/issues/242
+    # https://github.com/fontra/fontra-rcjk/issues/242
     glyphName = "test"
     sourceName = "aaaa/bbbb"
 
