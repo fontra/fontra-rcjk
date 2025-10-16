@@ -4,7 +4,7 @@ import pathlib
 import secrets
 from importlib import resources
 from types import SimpleNamespace
-from typing import Callable
+from typing import Any, Callable
 from urllib.parse import parse_qs, quote
 
 from aiohttp import web
@@ -35,14 +35,20 @@ class RCJKProjectManagerFactory:
 
 
 class RCJKProjectManager:
-    def __init__(self, host, *, readOnly=False, cacheDir=None):
+    def __init__(
+        self,
+        host: str,
+        *,
+        readOnly: bool = False,
+        cacheDir: str | pathlib.Path | None = None,
+    ):
         self.host = host
         self.readOnly = readOnly
         if cacheDir is not None:
             cacheDir = pathlib.Path(cacheDir).resolve()
             cacheDir.mkdir(exist_ok=True)
         self.cacheDir = cacheDir
-        self.authorizedClients = {}
+        self.authorizedClients: dict[str, AuthorizedClient] = {}
 
     async def aclose(self) -> None:
         for client in self.authorizedClients.values():
@@ -131,12 +137,16 @@ class RCJKProjectManager:
         logger.info(f"successfully logged in '{username}'")
         token = secrets.token_hex(32)
         self.authorizedClients[token] = AuthorizedClient(
-            rcjkClient, readOnly=self.readOnly, cacheDir=self.cacheDir
+            rcjkClient=rcjkClient,
+            readOnly=self.readOnly,
+            cacheDir=self.cacheDir,
         )
         return token
 
     async def projectAvailable(self, projectIdentifier: str, token: str) -> bool:
+        print("XXXX", projectIdentifier, token, token in self.authorizedClients)
         client = self.authorizedClients[token]
+        print("pro av", await client.projectAvailable(projectIdentifier))
         return await client.projectAvailable(projectIdentifier)
 
     async def getProjectList(self, token: str) -> list[str]:
@@ -158,12 +168,17 @@ class RCJKProjectManager:
 
 
 class AuthorizedClient:
-    def __init__(self, rcjkClient, readOnly=False, cacheDir=None):
+    def __init__(
+        self,
+        rcjkClient: RCJKClientAsync,
+        readOnly: bool = False,
+        cacheDir: pathlib.Path | None = None,
+    ):
         self.rcjkClient = rcjkClient
         self.readOnly = readOnly
         self.cacheDir = cacheDir
-        self.projectMapping = None
-        self.fontHandlers = {}
+        self._projectMapping: dict[str, tuple[str, str]] | None = None
+        self.fontHandlers: dict[str, FontHandler] = {}
 
     @property
     def username(self):
@@ -175,24 +190,29 @@ class AuthorizedClient:
             await fontHandler.aclose()
 
     async def projectAvailable(self, projectIdentifier: str) -> bool:
-        await self._setupProjectList()
-        return projectIdentifier in self.projectMapping
+        projectMapping = await self.getProjectMapping()
+        return projectIdentifier in projectMapping
 
     async def getProjectList(self) -> list[str]:
-        await self._setupProjectList(True)
-        return sorted(self.projectMapping)
+        projectMapping = await self.getProjectMapping(True)
+        return sorted(projectMapping)
 
-    async def _setupProjectList(self, forceRebuild: bool = False) -> None:
-        if not forceRebuild and self.projectMapping is not None:
-            return
+    async def getProjectMapping(
+        self, forceRebuild: bool = False
+    ) -> dict[str, tuple[str, str]]:
+        if not forceRebuild and self._projectMapping is not None:
+            return self._projectMapping
+
         projectMapping = await self.rcjkClient.get_project_font_uid_mapping()
         projectMapping = {f"{p}/{f}": uids for (p, f), uids in projectMapping.items()}
-        self.projectMapping = projectMapping
+        self._projectMapping = projectMapping
+        return self._projectMapping
 
     async def getFontHandler(self, projectIdentifier: str) -> FontHandler:
         fontHandler = self.fontHandlers.get(projectIdentifier)
         if fontHandler is None:
-            _, fontUID = self.projectMapping[projectIdentifier]
+            projectMapping = await self.getProjectMapping()
+            _, fontUID = projectMapping[projectIdentifier]
             backend = RCJKMySQLBackend.fromRCJKClient(
                 self.rcjkClient, fontUID, self.cacheDir
             )
@@ -208,7 +228,9 @@ class AuthorizedClient:
 
             logger.info(f"new FontHandler for '{projectIdentifier}'")
             fontHandler = FontHandler(
-                backend,
+                backend=backend,
+                projectIdentifier=projectIdentifier,
+                metaInfoProvider=self,
                 readOnly=self.readOnly or userReadOnly,
                 dummyEditor=dummyEditor,
                 allConnectionsClosedCallback=closeFontHandler,
@@ -216,6 +238,17 @@ class AuthorizedClient:
             await fontHandler.startTasks()
             self.fontHandlers[projectIdentifier] = fontHandler
         return fontHandler
+
+    async def getMetaInfo(self, projectIdentifier: str) -> dict[str, Any]:
+        return {
+            "projectName": projectIdentifier,
+            "projectIdentifier": projectIdentifier,
+        }
+
+    async def putMetaInfo(
+        self, projectIdentifier: str, metaInfo: dict[str, Any]
+    ) -> None:
+        pass
 
     async def _userPermissions(self) -> tuple[bool, bool]:
         userMeResponse = await self.rcjkClient.user_me()
