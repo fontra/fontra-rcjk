@@ -144,9 +144,7 @@ class RCJKProjectManager:
         return token
 
     async def projectAvailable(self, projectIdentifier: str, token: str) -> bool:
-        print("XXXX", projectIdentifier, token, token in self.authorizedClients)
         client = self.authorizedClients[token]
-        print("pro av", await client.projectAvailable(projectIdentifier))
         return await client.projectAvailable(projectIdentifier)
 
     async def getProjectList(self, token: str) -> list[str]:
