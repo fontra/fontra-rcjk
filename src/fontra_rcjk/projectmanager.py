@@ -4,7 +4,7 @@ import pathlib
 import secrets
 from importlib import resources
 from types import SimpleNamespace
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import parse_qs, quote
 
 from aiohttp import web
@@ -100,16 +100,10 @@ class RCJKProjectManager:
             return None
         return token
 
-    async def projectPageHandler(
-        self,
-        request: web.Request,
-        filterContent: Callable[[bytes, str], bytes] | None = None,
-    ) -> web.Response:
+    async def rootDocumentHandler(self, request: web.Request) -> web.Response:
         token = await self.authorize(request)
         htmlPath = resources.files("fontra_rcjk") / "client" / "landing.html"
         html = htmlPath.read_bytes()
-        if filterContent is not None:
-            html = filterContent(html, "text/html")
         response = web.Response(body=html, content_type="text/html")
 
         if token:
