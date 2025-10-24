@@ -240,7 +240,7 @@ class AuthorizedClient:
         }
 
     async def putMetaInfo(
-        self, projectIdentifier: str, metaInfo: dict[str, Any]
+        self, projectIdentifier: str, metaInfo: dict[str, Any], authorizationToken: str
     ) -> None:
         pass
 
