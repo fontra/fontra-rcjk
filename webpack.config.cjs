@@ -68,7 +68,7 @@ let baseConfig = {
 module.exports = (env, argv) => {
   if (argv.mode === "production") {
     baseConfig.mode = "production";
-    baseConfig.output.filename = "[name].[contenthash].js";
+    baseConfig.output.filename = "[name].[contenthash:8].js";
   } else {
     baseConfig.devtool = "eval-source-map";
   }
