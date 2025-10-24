@@ -231,7 +231,9 @@ class AuthorizedClient:
             self.fontHandlers[projectIdentifier] = fontHandler
         return fontHandler
 
-    async def getMetaInfo(self, projectIdentifier: str) -> dict[str, Any]:
+    async def getMetaInfo(
+        self, projectIdentifier: str, authorizationToken: str
+    ) -> dict[str, Any]:
         return {
             "projectName": projectIdentifier,
             "projectIdentifier": projectIdentifier,
