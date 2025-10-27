@@ -2,7 +2,9 @@ import argparse
 import logging
 import pathlib
 import secrets
+from functools import partial
 from importlib import resources
+from importlib.metadata import entry_points
 from types import SimpleNamespace
 from typing import Any
 from urllib.parse import parse_qs, quote
@@ -10,6 +12,13 @@ from urllib.parse import parse_qs, quote
 from aiohttp import web
 from fontra.core.fonthandler import FontHandler
 from fontra.core.protocols import ProjectManager
+from fontra.core.server import getPackageResourcePath
+
+try:
+    from importlib.resources.abc import Traversable
+except ImportError:
+    # < 3.11
+    from importlib.abc import Traversable
 
 from .backend_mysql import RCJKMySQLBackend
 from .client import HTTPError
@@ -59,6 +68,26 @@ class RCJKProjectManager:
             web.post("/login", self.loginHandler),
             web.post("/logout", self.logoutHandler),
         ]
+
+        for ep in entry_points(group="fontra.views"):
+            routes.append(
+                web.get(
+                    f"/{{path:{ep.name}.html}}",
+                    partial(
+                        self.viewHandler,
+                        contentRoot=getPackageResourcePath(ep.value),
+                        staticContentHandler=fontraServer.staticContentHandler,
+                    ),
+                )
+            )
+            # Legacy URL formats
+            routes.append(web.get(f"/{{view:{ep.name}}}/", self.viewRedirectHandler))
+            routes.append(
+                web.get(
+                    f"/{{view:{ep.name}}}/-/{{project:.*}}", self.viewRedirectHandler
+                )
+            )
+
         fontraServer.httpApp.add_routes(routes)
         self.cookieMaxAge = fontraServer.cookieMaxAge
         self.startupTime = fontraServer.startupTime
@@ -93,6 +122,33 @@ class RCJKProjectManager:
             logger.info(f"logging out '{client.username}'")
             await client.aclose()
         raise web.HTTPFound("/")
+
+    async def viewHandler(
+        self, request: web.Request, *, contentRoot: Traversable, staticContentHandler
+    ) -> web.Response:
+        authToken = await self.authorize(request)
+        if not authToken:
+            qs = quote(request.path_qs, safe="")
+            raise web.HTTPFound(f"/?ref={qs}")
+
+        project = request.query.get("project")
+        # Skip applicationsettings.html, as it is the only view that does
+        # *not* require a valid project in the query
+        if request.match_info.get("path") != "applicationsettings.html" and (
+            not project or not await self.projectAvailable(project, authToken)
+        ):
+            raise web.HTTPForbidden()
+
+        return await staticContentHandler(request, contentRoot=contentRoot)
+
+    # Support pre-2025 paths
+    async def viewRedirectHandler(self, request: web.Request) -> web.Response:
+        view = request.match_info["view"]
+        project = request.match_info.get("project")
+        if project is None:
+            project = request.query.get("project")
+
+        raise web.HTTPFound(f"/{view}.html?project={project}")
 
     async def authorize(self, request: web.Request) -> str | None:
         token = request.cookies.get("fontra-authorization-token")
