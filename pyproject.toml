@@ -80,3 +80,7 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "requests"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]  # < 3.11
+module = "importlib.resources.abc"
+ignore_missing_imports = true
