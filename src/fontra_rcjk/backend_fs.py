@@ -8,6 +8,8 @@ from functools import cached_property
 from os import PathLike
 from typing import Any, Awaitable, Callable
 
+from fontTools.ufoLib.filenames import userNameToFileName
+
 from fontra.backends.filewatcher import Change, FileWatcher
 from fontra.backends.ufo_utils import extractGlyphNameAndCodePoints
 from fontra.core.classes import (
@@ -21,7 +23,6 @@ from fontra.core.classes import (
 )
 from fontra.core.instancer import mapLocationFromUserToSource
 from fontra.core.protocols import WritableFontBackend
-from fontTools.ufoLib.filenames import userNameToFileName
 
 from .base import (
     GLIFGlyph,

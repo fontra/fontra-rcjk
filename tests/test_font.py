@@ -5,6 +5,7 @@ import shutil
 from importlib.metadata import entry_points
 
 import pytest
+
 from fontra.backends import getFileSystemBackend, newFileSystemBackend
 from fontra.backends.copy import copyFont
 from fontra.core.classes import (
@@ -22,7 +23,6 @@ from fontra.core.classes import (
     structure,
     unstructure,
 )
-
 from fontra_rcjk.base import makeSafeLayerName, standardCustomDataItems
 
 dataDir = pathlib.Path(__file__).resolve().parent / "data"
