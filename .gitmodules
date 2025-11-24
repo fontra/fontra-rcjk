@@ -1,0 +1,3 @@
+[submodule "fontra"]
+	path = fontra
+	url = https://github.com/fontra/fontra.git
