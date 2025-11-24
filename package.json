@@ -17,5 +17,9 @@
   },
   "workspaces": [
     "src-js/projectmanager-rcjk"
-  ]
+  ],
+  "dependencies": {
+    "@fontra/core": "file:fontra/src-js/fontra-core",
+    "@fontra/projectmanager-filesystem": "file:fontra/src-js/projectmanager-filesystem"
+  }
 }
