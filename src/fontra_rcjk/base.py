@@ -4,6 +4,11 @@ from copy import deepcopy
 from functools import cached_property
 from typing import Any, Union
 
+from fontTools.misc.transform import DecomposedTransform
+from fontTools.ufoLib.filenames import illegalCharacters
+from fontTools.ufoLib.glifLib import readGlyphFromString, writeGlyphToString
+from fontTools.varLib.models import piecewiseLinearMap
+
 from fontra.backends.designspace import cleanupTransform, unpackAnchors
 from fontra.core.classes import (
     Component,
@@ -19,10 +24,6 @@ from fontra.core.classes import (
     unstructure,
 )
 from fontra.core.path import PackedPathPointPen
-from fontTools.misc.transform import DecomposedTransform
-from fontTools.ufoLib.filenames import illegalCharacters
-from fontTools.ufoLib.glifLib import readGlyphFromString, writeGlyphToString
-from fontTools.varLib.models import piecewiseLinearMap
 
 FONTRA_STATUS_KEY = "fontra.development.status"
 CUSTOM_DATA_LIB_KEY = "xyz.fontra.customData"
