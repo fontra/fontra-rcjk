@@ -433,7 +433,8 @@ class RCJKMySQLBackend:
     async def deleteGlyph(self, glyphName: str) -> None:
         await self._ensureGlyphMap()
         if glyphName not in self._rcjkGlyphInfo:
-            raise KeyError(f"Glyph '{glyphName}' does not exist")
+            logger.debug(f"Can't delete unknown glyph '{glyphName}'")
+            return
 
         logger.info(f"Deleting glyph '{glyphName}'")
 
