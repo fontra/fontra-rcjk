@@ -1113,11 +1113,13 @@ async def test_deleteGlyph(writableTestFont):
         assert len(glyphPaths) == 0
 
 
-async def test_deleteGlyphRaisesKeyError(writableTestFont):
+async def test_deleteUnknownGlyph(writableTestFont):
     glyphName = "A.doesnotexist"
+    glyphMap = await writableTestFont.getGlyphMap()
+    assert glyphName not in glyphMap
     async with contextlib.aclosing(writableTestFont):
-        with pytest.raises(KeyError, match="Glyph 'A.doesnotexist' does not exist"):
-            await writableTestFont.deleteGlyph(glyphName)
+        # Should *not* raise an exception
+        await writableTestFont.deleteGlyph(glyphName)
 
 
 async def test_variableComponentInNonSourceLayer(writableTestFont):
