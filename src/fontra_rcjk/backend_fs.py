@@ -10,6 +10,7 @@ from typing import Any, Awaitable, Callable
 
 from fontTools.ufoLib.filenames import userNameToFileName
 
+from fontra.backends.base import ReadableBaseBackend
 from fontra.backends.filewatcher import Change, FileWatcher
 from fontra.backends.ufo_utils import extractGlyphNameAndCodePoints
 from fontra.core.classes import (
@@ -45,7 +46,7 @@ FEA_FILENAME = "features.fea"
 FONTLIB_FILENAME = "fontLib.json"
 
 
-class RCJKBackend:
+class RCJKBackend(ReadableBaseBackend):
     @classmethod
     def fromPath(cls, path: PathLike) -> WritableFontBackend:
         return cls(path)
