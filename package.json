@@ -12,7 +12,7 @@
     "npm": "^11.6.4",
     "prettier-plugin-organize-imports": "^4.1.0",
     "prettier-plugin-sort-json": "^4.1.1",
-    "webpack": "^5.103.0",
+    "webpack": "^5.105.0",
     "webpack-cli": "^5.1.4"
   },
   "workspaces": [
