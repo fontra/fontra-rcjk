@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from random import random
 from typing import Any, Awaitable, Callable
 
-from fontra.backends.base import ReadableBaseBackend
+from fontra.backends.base import WritableBaseBackend
 from fontra.core.classes import (
     Axes,
     Font,
@@ -61,7 +61,7 @@ class RCJKGlyphInfo:
     updated: str
 
 
-class RCJKMySQLBackend(ReadableBaseBackend):
+class RCJKMySQLBackend(WritableBaseBackend):
     @classmethod
     def fromRCJKClient(cls, client, fontUID, cacheDir=None) -> WritableFontBackend:
         return cls(client, fontUID, cacheDir)
