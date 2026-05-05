@@ -203,7 +203,7 @@ class RCJKProjectManager:
         return await client.getProjectList()
 
     async def getRemoteSubject(
-        self, projectIdentifier: str, token: str
+        self, projectIdentifier: str, token: str, readOnly: bool = False
     ) -> FontHandler | None:
         client = self.authorizedClients.get(token)
         if client is None:
