@@ -203,7 +203,7 @@ class RCJKProjectManager:
         return await client.getProjectList()
 
     async def getRemoteSubject(
-        self, projectIdentifier: str, token: str
+        self, projectIdentifier: str, token: str, readOnly: bool = False
     ) -> FontHandler | None:
         client = self.authorizedClients.get(token)
         if client is None:
@@ -213,7 +213,7 @@ class RCJKProjectManager:
         if not await client.projectAvailable(projectIdentifier):
             logger.info(f"project {projectIdentifier!r} not found or not authorized")
             return None  # not found or not authorized
-        return await client.getFontHandler(projectIdentifier)
+        return await client.getFontHandler(projectIdentifier, readOnly)
 
 
 class AuthorizedClient:
@@ -257,7 +257,9 @@ class AuthorizedClient:
         self._projectMapping = projectMapping
         return self._projectMapping
 
-    async def getFontHandler(self, projectIdentifier: str) -> FontHandler:
+    async def getFontHandler(
+        self, projectIdentifier: str, readOnly: bool = False
+    ) -> FontHandler:
         fontHandler = self.fontHandlers.get(projectIdentifier)
         if fontHandler is None:
             projectMapping = await self.getProjectMapping()
@@ -280,7 +282,7 @@ class AuthorizedClient:
                 backend=backend,
                 projectIdentifier=projectIdentifier,
                 metaInfoProvider=self,
-                readOnly=self.readOnly or userReadOnly,
+                readOnly=self.readOnly or readOnly or userReadOnly,
                 dummyEditor=dummyEditor,
                 allConnectionsClosedCallback=closeFontHandler,
             )
