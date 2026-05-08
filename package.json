@@ -6,6 +6,10 @@
   },
   "type": "module",
   "devDependencies": {
+    "@babel/preset-env": "^7.29.3",
+    "@babel/preset-typescript": "^7.28.5",
+    "@types/emscripten": "^1.41.5",
+    "babel-loader": "^10.1.1",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "html-bundler-webpack-plugin": "^4.22.0",

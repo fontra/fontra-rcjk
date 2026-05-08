@@ -1,4 +1,4 @@
-import { parseCookies } from "@fontra/core/utils.js";
+import { parseCookies } from "@fontra/core/utils.ts";
 import { startupLandingPage } from "@fontra/projectmanager-filesystem/landing.js";
 
 export function startupRCJKLandingPage() {
