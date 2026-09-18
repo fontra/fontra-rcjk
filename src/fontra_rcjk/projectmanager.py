@@ -5,6 +5,7 @@ import secrets
 from functools import partial
 from importlib import resources
 from importlib.metadata import entry_points
+from importlib.resources.abc import Traversable
 from types import SimpleNamespace
 from typing import Any
 from urllib.parse import parse_qs, quote
@@ -14,12 +15,6 @@ from aiohttp import web
 from fontra.core.fonthandler import FontHandler
 from fontra.core.protocols import ProjectManager
 from fontra.core.server import getPackageResourcePath
-
-try:
-    from importlib.resources.abc import Traversable
-except ImportError:
-    # < 3.11
-    from importlib.abc import Traversable
 
 from .backend_mysql import RCJKMySQLBackend
 from .client import HTTPError
